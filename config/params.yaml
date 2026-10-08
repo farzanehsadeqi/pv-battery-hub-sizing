@@ -1,0 +1,51 @@
+# All model inputs live here. Change a value, re-run the pipeline.
+
+site:
+  name: Bielefeld
+  latitude: 52.03
+  longitude: 8.53
+  timezone: Europe/Berlin
+
+pv:
+  capacity_kwp: 250          # installed PV peak power
+  performance_ratio: 0.80    # inverter, temperature and wiring losses
+
+horizon:
+  mode: forecast             # forecast = next days from Open-Meteo; historical = a past window
+  days: 14                   # Open-Meteo forecasts reach about 16 days
+  historical_start: "2025-06-01"   # used only when mode: historical
+
+training:
+  years: 3                   # years of hourly weather history for the solar model
+
+demand:
+  # Expected EV arrivals per hour, local time (index 0 = 00:00-01:00).
+  # Stylised public commuter hub: morning and evening peaks on weekdays,
+  # flatter midday pattern at weekends. Assumption, documented in README.
+  arrivals_weekday: [0.3, 0.2, 0.2, 0.2, 0.3, 0.8, 2.0, 3.5, 4.0, 2.5, 1.5, 1.2,
+                     1.2, 1.2, 1.5, 2.0, 3.0, 4.0, 4.0, 3.0, 2.0, 1.2, 0.8, 0.5]
+  arrivals_weekend: [0.3, 0.2, 0.2, 0.2, 0.2, 0.3, 0.5, 0.8, 1.2, 1.8, 2.2, 2.5,
+                     2.5, 2.5, 2.5, 2.5, 2.5, 2.2, 2.0, 1.8, 1.4, 1.0, 0.7, 0.4]
+  session_energy_mean_kwh: 22     # energy delivered per charging session
+  session_energy_sd_kwh: 10
+
+economics:
+  battery_cost_eur_per_kwh: 1.0   # 2 EUR/kWh per 28 days in the original case -> 1 EUR/kWh per 14 days
+  grid_price_eur_per_kwh: 0.50
+  wind_price_eur_per_kwh: 0.15
+  wind_max_kwh_per_hour: 20
+
+search:
+  capacity_max_kwh: 600
+  capacity_step_kwh: 10
+  activation_step: 0.05
+
+risk:
+  alpha: 0.95                     # VaR / CVaR level on the cost (upper) tail
+  green_target: 0.90              # max 10 % of demand from the grid
+  shortfall_penalty_eur_per_pp: 100
+
+simulation:
+  n_scenarios: 2000               # scenarios used to optimise
+  n_scenarios_eval: 2000          # independent scenarios used to evaluate
+  seed: 42
